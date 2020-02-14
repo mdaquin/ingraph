@@ -1,25 +1,55 @@
 from flask import Flask, request
 from flask_cors import CORS, cross_origin
 import json
+import ingraph
 
 app = Flask('ingraph_api')
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
-# ingraph.py module realising operations. Includes:
-## indexcache module so that details of indices stay in cache
-## nodecache module that temporary keeps any node being 
-
+# GET / : returns info including list of graphs
+@app.route('/', methods=['GET'])
+@cross_origin()
+def get_info():
+    response_obj = {'system': 'ingraph', 'version':0.1, 'graphs': ingraph.list_graphs()}    
+    response = app.response_class(
+        response=json.dumps(response_obj),
+        status=200,
+        mimetype='application/json'
+    )
+    return response
+    
 # POST /graphname: createindex - config:
 #     directed(def)/undirected,
 #     uni(def)/multi,
 #     unlabelled(def)/labelled, 
 #     edge unweighted(def)/weighted
-#     nodes weighted/unweighted
 @app.route('/<graphid>', methods=['POST'])
 @cross_origin()
 def create_graph(graphid):
-    response_obj = {'error': 'function not yet implemented'}
+    response_obj = {'error': 'something went wrong'}
+    if ingraph.graph_exists(graphid):
+        response_obj = {'error': 'graph already exists'}
+        response = app.response_class(
+            response=json.dumps(response_obj),
+            status=400,
+            mimetype='application/json'
+        )
+        return response
+    data = request.get_json(silent=True)
+    directed = True
+    if "directed" in data and not data["directed"]:
+        directed = False
+    multi = False
+    if "multigraph" in data and data["multigraph"]:
+        multi=True
+    labelled = False
+    if "labelled" in data and data["labelled"]:
+        labelled = True
+    weighted = False
+    if "weighted" in data and data["weighted"]:
+        weighted = True
+    r = create_graph(graphid, directed, multi, labelled, weighted)
     response = app.response_class(
         response=json.dumps(response_obj),
         status=200,
