@@ -59,10 +59,10 @@ def create_graph(gid, directed=True, multi=False, labelled=False, weighted=False
     hgid=hashid(gid)
     r=requests.put(es_base+hgid)
     if r.status_code != 200:
-        return False
+        return {"error": "failed to create index"}
     if graph_exists(gid):
-        return False
+        return {"error": "graph already exists"}
     r=update_doc(graph_index,hgid,{'label': gid, 'gid': hgid, 'directed':directed, 'multi': multi, 'labelled': labelled, 'weighted': weighted})    
     if r.status_code != 200:
-        return False
-    return True
+        return {"error": "failed to create graph"}
+    return {"success": "graph created"}
