@@ -7,7 +7,6 @@ app = Flask('ingraph_api')
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
-# GET / : returns info including list of graphs
 @app.route('/', methods=['GET'])
 @cross_origin()
 def get_info():
@@ -19,11 +18,6 @@ def get_info():
     )
     return response
     
-# POST /graphname: createindex - config:
-#     directed(def)/undirected,
-#     uni(def)/multi,
-#     unlabelled(def)/labelled, 
-#     edge unweighted(def)/weighted
 @app.route('/<graphid>', methods=['POST'])
 @cross_origin()
 def create_graph(graphid):
@@ -56,7 +50,21 @@ def create_graph(graphid):
         mimetype='application/json'
     )
     return response
-    
+
+@app.route('/<graphid>', methods=['GET'])
+@cross_origin()
+def get_graph(graphid):
+    response_obj = {'error': 'graph does not exist or is not available'}
+    res = ingraph.get_graph(graphid)
+    if res != {}:
+        response_obj = res
+    response = app.response_class(
+        response=json.dumps(response_obj),
+        status=200,
+        mimetype='application/json'
+    )
+    return response
+
 # GET /graphname/nodeid: - return all info and edges (with weights, labels and directions depending on graph type)
 @app.route('/<graphid>/<nodeid>', methods=['GET'])
 @cross_origin()

@@ -45,6 +45,12 @@ def graph_exists(graphid):
     r = get_doc("ingraph_graphs", hashid(graphid))
     return r.status_code == 200
 
+def get_graph(graphid):
+    r = get_doc("ingraph_graphs", hashid(graphid))
+    if r.status_code == 200 and "_source" in r.json():
+        return r.json()["_source"]
+    return {}
+
 def delete_graph(gid):
     hgid=hashid(gid)
     r=requests.delete(es_base+hgid)
