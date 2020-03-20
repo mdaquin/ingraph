@@ -1,3 +1,0 @@
-import ingraph
-
-print(ingraph.hashid("this is a test"))

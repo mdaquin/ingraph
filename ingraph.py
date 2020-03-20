@@ -72,3 +72,4 @@ def create_graph(gid, directed=True, multi=False, labelled=False, weighted=False
     if r.status_code != 200:
         return {"error": "failed to create graph"}
     return {"success": "graph created"}
+

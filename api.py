@@ -30,22 +30,23 @@ def create_graph(graphid):
             mimetype='application/json'
         )
         return response
-    data = request.get_json(silent=True)
+    data = request.get_json(force=True)
+    print(data)
     directed = True
-    if "directed" in data and not data["directed"]:
+    if "directed" in data and data["directed"]==0:
         directed = False
     multi = False
-    if "multigraph" in data and data["multigraph"]:
+    if "multigraph" in data and data["multigraph"]==1:
         multi=True
     labelled = False
-    if "labelled" in data and data["labelled"]:
+    if "labelled" in data and data["labelled"]==1:
         labelled = True
     weighted = False
-    if "weighted" in data and data["weighted"]:
+    if "weighted" in data and data["weighted"]==1:
         weighted = True
-    r = create_graph(graphid, directed, multi, labelled, weighted)
+    r = ingraph.create_graph(graphid, directed, multi, labelled, weighted)
     response = app.response_class(
-        response=json.dumps(response_obj),
+        response=json.dumps(r),
         status=200,
         mimetype='application/json'
     )
@@ -65,7 +66,8 @@ def get_graph(graphid):
     )
     return response
 
-# GET /graphname/nodeid: - return all info and edges (with weights, labels and directions depending on graph type)
+# GET /graphname/nodeid: - return all info and edges
+# (with weights, labels and directions depending on graph type)
 @app.route('/<graphid>/<nodeid>', methods=['GET'])
 @cross_origin()
 def get_node(graphid, nodeid):
@@ -77,7 +79,8 @@ def get_node(graphid, nodeid):
     )
     return response
 
-# GET /graphname/nodeid/inedges/: - return inedges if directed (as above) all edges otherwise
+# GET /graphname/nodeid/inedges/: -
+# return inedges if directed (as above) all edges otherwise
 @app.route('/<graphid>/<nodeid>/inedges', methods=['GET'])
 @cross_origin()
 def get_inedges(graphid, nodeid):
@@ -89,7 +92,8 @@ def get_inedges(graphid, nodeid):
     )
     return response
 
-# GET /graphname/nodeid/outedges/: - return ouedges if directed, all edges otherwise
+# GET /graphname/nodeid/outedges/: -
+# return ouedges if directed, all edges otherwise
 @app.route('/<graphid>/<nodeid>/outedges', methods=['GET'])
 @cross_origin()
 def get_outedges(graphid, nodeid):
@@ -106,7 +110,7 @@ def get_outedges(graphid, nodeid):
 #    - inedges: same if directed
 #    - outedges: same if directed
 #    - label of node
-#    - weight of node if weighted.
+#    - weight of node if weighted or weight_inc for increment
 #    any other attribute: part of the node info
 # Actually index in the same way but also update the origin/destination of in/outedges (or edges if undirected) as well. Can take time.
 # Dont replace the whole object, just add to the edges. If attributes already exist, replace. Otherwise, add.
