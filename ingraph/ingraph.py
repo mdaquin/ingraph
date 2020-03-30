@@ -73,3 +73,15 @@ def create_graph(gid, directed=True, multi=False, labelled=False, weighted=False
         return {"error": "failed to create graph"}
     return {"success": "graph created"}
 
+def update_node(gid, nid, data):
+    graph = get_graph(gid)
+    odata = get_doc(hashid(gid), hashid(nid))
+    ndata = mergeNodeInfo(odata, data, graph)
+    update_doc(hashid(gid), hashid(nid), ndata)
+    anu   = otherNodesUpdates(data)
+    for node in anu:
+        oodata = get_doc(hashid(gid), node)
+        ondata = mergeNodeInfo(oodata, node[anu], graph)
+        update_doc(hashid(gid), node, ondata)
+    return {"success": "node created or updated"}
+    

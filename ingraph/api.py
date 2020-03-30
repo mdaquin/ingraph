@@ -106,18 +106,20 @@ def get_outedges(graphid, nodeid):
     return response
 
 # POST /graphname/nodeid: - object with
-#    - edges: if undirected graph - array of objects including id of destination obj, and if relevant, weight (numerical), label (anything)
+#    - edges: if undirected graph - array of objects including id of destination obj, and if relevant, weight (numerical), weight_inc, label (anything)
 #    - inedges: same if directed
 #    - outedges: same if directed
 #    - label of node
-#    - weight of node if weighted or weight_inc for increment
-#    any other attribute: part of the node info
+#    - any other attribute: part of the node info
 # Actually index in the same way but also update the origin/destination of in/outedges (or edges if undirected) as well. Can take time.
-# Dont replace the whole object, just add to the edges. If attributes already exist, replace. Otherwise, add.
+# Dont replace the whole object, just add to the edges. If attributes already exist, and unique value replace. Otherwise, add.
+# if edge multiple add otherwise replace (or inc) 
 @app.route('/<graphid>/<nodeid>', methods=['POST'])
 @cross_origin()
 def update_node(graphid, nodeid):
-    response_obj = {'error': 'function not yet implemented'}
+    response_obj = {'error': 'adding node failed'}
+    data = request.get_json(force=True)
+    response_obj = ingraph.update_node(graphid, nodeid, data)
     response = app.response_class(
         response=json.dumps(response_obj),
         status=200,
@@ -162,9 +164,20 @@ def delete_edge(graphid, nodeid):
     return response
 
 
+# GET /graphname/search
+# Return a list of nodes matching the query
+@app.route('/<graphid>/search', methods=['GET'])
+@cross_origin()
+def search(graphid):
+    response_obj = {'error': 'function not yet implemented'}
+    response = app.response_class(
+        response=json.dumps(response_obj),
+        status=200,
+        mimetype='application/json'
+    )
+    return response
+
 app.run(port=6060)
-
-
 
 
 
