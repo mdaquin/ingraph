@@ -18,9 +18,9 @@ class InGraph:
         self.es_url = es_url
 
     
-        def createGraph(self, directed=True, labelled=False, weighted=False, multi=False):
-            return True
+    def createGraph(self, directed=True, labelled=False, weighted=False, multi=False):
+        return True
 
 
-        def updateNode(self, nid, nodedata):
-            return True
+    def updateNode(self, nid, nodedata):
+        return True
