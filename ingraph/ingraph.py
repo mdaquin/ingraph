@@ -26,11 +26,11 @@ class InGraph:
         r=requests.delete(self.es_base+index+'/_doc/'+id)
         return r
 
-    def search_doc(self, index, q=None):    
+    def search_doc(self, index, q=None, size=10):    
         if q != None:
-            r=requests.get(self.es_base+index+'/_search?q='+q)
+            r=requests.get(self.es_base+index+'/_search?q='+q+'&size='+str(size))
         else:
-            r=requests.get(self.es_base+index+'/_search')        
+            r=requests.get(self.es_base+index+'/_search?size='+str(size))        
         return r
 
     def list_graphs(self):
@@ -91,7 +91,6 @@ class InGraph:
         ndata = util.mergeNodeInfo(nid, odata, data, graph)
         r = self.update_doc(util.hashid(self.graphid), util.hashid(nid), ndata)
         anu = util.otherNodeUpdates(nid, data, graph)
-        print(anu)
         for node in anu:
             oodata = self.get_doc(util.hashid(self.graphid), util.hashid(node))
             if oodata.status_code != 200:
@@ -100,30 +99,26 @@ class InGraph:
                 oodata = json.loads(oodata.text)
                 if "_source" in oodata:
                     oodata = oodata["_source"]
-            print("oodata")
-            print(oodata)
-            print("update")
-            print(anu[node])            
             ondata = util.mergeNodeInfo(node, oodata, anu[node], graph)
-            print("Result")
-            print(ondata)
             self.update_doc(util.hashid(self.graphid), util.hashid(node), ondata)
         return {"success": "node created or updated"}
     
-    def search(self, query=None):
+    def search(self, **kwarg):
+        query = kwarg.get("query", None)
+        size = kwarg.get("size", 10)
         r = ""
         if query == None:
-            r = self.search_doc(util.hashid(self.graphid))
+            r = self.search_doc(util.hashid(self.graphid), size=size)
         else:
-            r = self.search_doc(util.hashid(self.graphid), q=query)
+            r = self.search_doc(util.hashid(self.graphid), q=query, size=size)
             # search with the query in the index
         # post process the list of results, mergin out and inedges if
         # undirected
         res = json.loads(r.text)
-        ret = []
+        hits = []
         for hit in res["hits"]["hits"]:
             if "_source" in hit:
-                ret.append(hit["_source"])        
-        return ret
+                hits.append(hit["_source"])        
+        return {"hits": hits, "count": res["hits"]["total"]["value"]}
 
     

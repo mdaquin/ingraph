@@ -1,7 +1,7 @@
 import hashlib
 
 def hashid(did):
-    return hashlib.sha1(did).hexdigest()
+    return hashlib.sha1(did.encode('utf-8')).hexdigest()
 
 # need some error handling...
 def mergeNodeInfo(nid, odata, ndata, graph):
@@ -25,8 +25,6 @@ def mergeNodeInfo(nid, odata, ndata, graph):
                 res[k] = ndata[k]
     # check if multi and avoid creating multiple edges if not
     # weight inc...
-    print(" in ndata")
-    print(ndata)
     if "edges" in ndata:
         for e in ndata["edges"]:
             if validateEdge(e, graph):
