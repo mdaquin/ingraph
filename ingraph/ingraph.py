@@ -116,6 +116,10 @@ class InGraph:
         # undirected
         res = json.loads(r.text)
         hits = []
+        if "hits" not in res:
+            return {"hits": [], "count": 0}
+        if "hits" not in res["hits"]:
+            return {"hits": [], "count": 0}            
         for hit in res["hits"]["hits"]:
             if "_source" in hit:
                 hits.append(hit["_source"])        
